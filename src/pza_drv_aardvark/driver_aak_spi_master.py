@@ -14,7 +14,15 @@ class DriverAardvarkSpiMaster(MetaDriverIo):
         """
         return {
             "compatible": "aardvark_spi_master",
-            "info": { "type": "spi/master", "version": "1.0" }
+            "info": { "type": "spi/master", "version": "1.0" },
+            "settings": {
+                "serial_number": "serial number of the aardvark you want to use for this interface as an integer (2237170206)",
+                "bitrate_hz": "spi bitrate as an integer in hz (4000000)",
+                "clock_polarity": "CPOL [0 / 1]",
+                "clock_phase": "CPHA [0 / 1]",
+                "bitorder": "[msb / lsb] first",
+                "ss_polarity": "[active_low / active_high]"
+            }
         }
 
     ###########################################################################
@@ -28,9 +36,17 @@ class DriverAardvarkSpiMaster(MetaDriverIo):
         # self.id = tree["gpio"]["id"]
         # self.value = -1
         # self.direction = None
+        
+            #         "serial_number": 2237170206,    // serial number of the aardvark you want to use for this interface
+            # "bitrate_hz": 4000000,
+            # "clock_polarity": 0,            // CPOL 0 or 1
+            # "clock_phase": 0,               // CPHA 0 or 1
+            # "bitorder": "msb",              // msb/lsb
+            # "ss_polarity": "active_low"     // active_low / active_high
 
-        # # Try to export the gpio
-        # self.__export()
+
+        self.aa_handle = Bridge.get_handle( tree["settings"]["serial_number"] )
+        
 
         # # Register commands
         # self.register_command("value/set", self.__set_value)
