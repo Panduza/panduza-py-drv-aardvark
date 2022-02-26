@@ -2,9 +2,10 @@ import time
 from loguru import logger
 from pza_platform import MetaDriverIo
 from .bridge import AardvarkBridge
+from aardvark_py import *
 
 class DriverAardvarkSpiMaster(MetaDriverIo):
-    """
+    """ Driver Aardvark Spi Master
     """
 
     ###########################################################################
@@ -32,38 +33,57 @@ class DriverAardvarkSpiMaster(MetaDriverIo):
     def setup(self, tree):
         """ FROM MetaDriver
         """
-        # # Initialize variables
-        # self._loop=0
-        # self.id = tree["gpio"]["id"]
-        # self.value = -1
-        # self.direction = None
-        
-            #         "serial_number": 2237170206,    // serial number of the aardvark you want to use for this interface
-            # "bitrate_hz": 4000000,
-            # "clock_polarity": 0,            // CPOL 0 or 1
-            # "clock_phase": 0,               // CPHA 0 or 1
-            # "bitorder": "msb",              // msb/lsb
-            # "ss_polarity": "active_low"     // active_low / active_high
-
-
+        # Open the device
         self.aa_handle = AardvarkBridge.GetHandle( tree["settings"]["serial_number"] )
         
+        # Get bitrate
+        self.bitrate_khz = 1000
+        if "bitrate_hz" in tree["settings"]:
+            self.bitrate_khz = int(tree["settings"]["bitrate_hz"] / 1000)
 
-        # # Register commands
-        # self.register_command("value/set", self.__set_value)
-        # self.register_command("direction/set", self.__set_direction)
+        # Get Polarities
+        self.cpol = 0
+        self.cpha = 0
+        if "clock_polarity" in tree["settings"]:
+            self.cpol = tree["settings"]["clock_polarity"]
+        if "clock_phase" in tree["settings"]:
+            self.cpha = tree["settings"]["clock_phase"]
 
-    ###########################################################################
-    ###########################################################################
+        # Get Bitorder
+        self.bitorder = AA_SPI_BITORDER_MSB
+        if "bitorder" in tree["settings"]:
+            if tree["settings"]["bitorder"] is "msb":
+                self.bitorder = AA_SPI_BITORDER_MSB
+            else:
+                self.bitorder = AA_SPI_BITORDER_LSB
+
+        # Slave Select Polarity
+        self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
+        if "ss_polarity" in tree["settings"]:
+            if tree["settings"]["ss_polarity"] is "active_low":
+                self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
+            else:
+                self.ss_polarity = AA_SPI_SS_ACTIVE_HIGH
+
+        #
+        logger.debug(f"bitrate: {self.bitrate_khz}khz")
+        logger.debug(f"CPOL: {self.cpol}")
+        logger.debug(f"CPHA: {self.cpha}")
+        logger.debug(f"bitorder: {tree['settings']['bitorder']}")
+        logger.debug(f"ss-polarity: {tree['settings']['ss_polarity']}")
         
+        #
+        AardvarkBridge.ConfigureSpiMaster(self.aa_handle, self.bitrate_khz, self.cpol, self.cpha, self.bitorder, self.ss_polarity)
+        
+        # Register commands
+        self.register_command("data/transfer", self.__data_transfer)
+
+    ###########################################################################
+    ###########################################################################
+
     def loop(self):
         """ FROM MetaDriver
         """
-        # if self._loop % 2 == 0:
-        #     self.__push_attribute_value()
-        #     self.__push_attribute_direction()
-        # self._loop += 1
-        # time.sleep(0.5)
         return False
 
     # ###########################################################################
@@ -83,12 +103,13 @@ class DriverAardvarkSpiMaster(MetaDriverIo):
     #         else:
     #             raise Exception("Error exporting GPIOs %s | %s" % (str(self.id), repr(e)))
 
-    # ###########################################################################
-    # ###########################################################################
+    ###########################################################################
+    ###########################################################################
 
-    # def __set_value(self, payload):
-    #     """
-    #     """
+    def __data_transfer(self, payload):
+        """
+        """
+        pass
     #     # Parse request
     #     req = self.payload_to_dict(payload)
     #     req_value = req["value"]

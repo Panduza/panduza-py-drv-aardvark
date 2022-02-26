@@ -1,19 +1,15 @@
-
-
 # Imports
 from aardvark_py import *
 from loguru import logger
 
 
 class AardvarkBridge:
-    """
-    Centralized aardvark connection manager
+    """Centralized aardvark connection manager
     """
 
     @staticmethod
     def GetHandle(serial_number):
-        """
-        Find the aardvark device with the given serial number
+        """Find the aardvark device with the given serial number
         """
         # Start by running an extended discovery
         MAX_NUMBER_OF_DEVICE_TO_DETECT=32
@@ -42,5 +38,23 @@ class AardvarkBridge:
 
         # Return the handle
         return aardvark_handle
-    
 
+    @staticmethod
+    def ConfigureSpiMaster(handle, bitrate_khz, cpol, cpha, bitorder, ss_polarity):
+        """Configure the aardvark
+
+        Args:
+            handle (_type_): handle of the aardvark
+            bitrate_khz (_type_): _description_
+            cpol (_type_): _description_
+            cpha (_type_): _description_
+            bitorder (_type_): _description_
+            ss_polarity (_type_): _description_
+        """
+        aa_spi_bitrate(handle, bitrate_khz)
+        aa_spi_configure(handle, cpol, cpha, bitorder)
+        aa_spi_slave_disable(handle)
+        aa_spi_master_ss_polarity(handle, ss_polarity)
+
+
+    
