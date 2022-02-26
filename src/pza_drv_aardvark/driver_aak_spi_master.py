@@ -1,6 +1,7 @@
 import time
 from loguru import logger
 from pza_platform import MetaDriverIo
+from .bridge import AardvarkBridge
 
 class DriverAardvarkSpiMaster(MetaDriverIo):
     """
@@ -45,7 +46,7 @@ class DriverAardvarkSpiMaster(MetaDriverIo):
             # "ss_polarity": "active_low"     // active_low / active_high
 
 
-        self.aa_handle = Bridge.get_handle( tree["settings"]["serial_number"] )
+        self.aa_handle = AardvarkBridge.GetHandle( tree["settings"]["serial_number"] )
         
 
         # # Register commands
