@@ -1,10 +1,10 @@
 import time
 from loguru import logger
-from pza_platform import MetaDriverIo
+from pza_platform import MetaDriver
 from .bridge import AardvarkBridge
 from aardvark_py import *
 
-class DriverAardvarkSpiMaster(MetaDriverIo):
+class DriverAardvarkSpiMaster(MetaDriver):
     """ Driver Aardvark Spi Master
     """
 
@@ -86,30 +86,20 @@ class DriverAardvarkSpiMaster(MetaDriverIo):
         """
         return False
 
-    # ###########################################################################
-    # ###########################################################################
-
-    # def __export(self):
-    #     """ Export the gpio
-    #     """
-    #     try:
-    #         f = open("/sys/class/gpio/export", "w")
-    #         f.write(str(self.id))
-    #         f.close()
-    #         logger.info("export gpio id:{}", self.id)
-    #     except IOError as e:
-    #         if e.errno == 16:
-    #             logger.debug("gpio {} already exported", self.id)
-    #         else:
-    #             raise Exception("Error exporting GPIOs %s | %s" % (str(self.id), repr(e)))
-
     ###########################################################################
     ###########################################################################
 
     def __data_transfer(self, payload):
         """
         """
-        pass
+    
+        #
+        status, data_in = aa_spi_write(self.aa_handle, array('B', [1, 2, 3, 4]), array('B'))
+        if status < 0:
+            print(f"fail sending data ({aa_status_string(status)})")
+        else:
+            print("data [1, 2, 3, 4] sent on spi")
+
     #     # Parse request
     #     req = self.payload_to_dict(payload)
     #     req_value = req["value"]

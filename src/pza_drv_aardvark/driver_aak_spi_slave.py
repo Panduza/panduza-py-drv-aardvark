@@ -1,9 +1,11 @@
 import time
 from loguru import logger
+from .bridge import AardvarkBridge
 from pza_platform import MetaDriverIo
+from aardvark_py import *
 
 class DriverAardvarkSpiSlave(MetaDriverIo):
-    """
+    """ Driver Aardvark Spi Slave
     """
 
     ###########################################################################
@@ -14,7 +16,14 @@ class DriverAardvarkSpiSlave(MetaDriverIo):
         """
         return {
             "compatible": "aardvark_spi_slave",
-            "info": { "type": "spi/slave", "version": "1.0" }
+            "info": { "type": "spi/slave", "version": "1.0" },
+            "settings": {
+                "serial_number": "serial number of the aardvark you want to use for this interface as an integer (2237170206)",
+                "bitrate_hz": "spi bitrate as an integer in hz (4000000)",
+                "clock_polarity": "CPOL [0 / 1]",
+                "clock_phase": "CPHA [0 / 1]",
+                "bitorder": "[msb / lsb] first"
+            }
         }
 
     ###########################################################################
@@ -23,18 +32,48 @@ class DriverAardvarkSpiSlave(MetaDriverIo):
     def setup(self, tree):
         """ FROM MetaDriver
         """
-        # # Initialize variables
-        # self._loop=0
-        # self.id = tree["gpio"]["id"]
-        # self.value = -1
-        # self.direction = None
+        # Open the device
+        self.aa_handle = AardvarkBridge.GetHandle( tree["settings"]["serial_number"] )
+        
+        # Get bitrate
+        self.bitrate_khz = 1000
+        if "bitrate_hz" in tree["settings"]:
+            self.bitrate_khz = int(tree["settings"]["bitrate_hz"] / 1000)
 
-        # # Try to export the gpio
-        # self.__export()
+        # Get Polarities
+        self.cpol = 0
+        self.cpha = 0
+        if "clock_polarity" in tree["settings"]:
+            self.cpol = tree["settings"]["clock_polarity"]
+        if "clock_phase" in tree["settings"]:
+            self.cpha = tree["settings"]["clock_phase"]
 
-        # # Register commands
-        # self.register_command("value/set", self.__set_value)
-        # self.register_command("direction/set", self.__set_direction)
+        # Get Bitorder
+        self.bitorder = AA_SPI_BITORDER_MSB
+        if "bitorder" in tree["settings"]:
+            if tree["settings"]["bitorder"] is "msb":
+                self.bitorder = AA_SPI_BITORDER_MSB
+            else:
+                self.bitorder = AA_SPI_BITORDER_LSB
+
+        # Slave Select Polarity
+        self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
+        if "ss_polarity" in tree["settings"]:
+            if tree["settings"]["ss_polarity"] is "active_low":
+                self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
+            else:
+                self.ss_polarity = AA_SPI_SS_ACTIVE_HIGH
+
+        #
+        logger.debug(f"bitrate: {self.bitrate_khz}khz")
+        logger.debug(f"CPOL: {self.cpol}")
+        logger.debug(f"CPHA: {self.cpha}")
+        logger.debug(f"bitorder: {tree['settings']['bitorder']}")
+        logger.debug(f"ss-polarity: active_low forced on aardvark slaves")
+        
+        #
+        AardvarkBridge.ConfigureSpiSlave(self.aa_handle, self.bitrate_khz, self.cpol, self.cpha, self.bitorder)
+        
 
     ###########################################################################
     ###########################################################################
@@ -42,11 +81,6 @@ class DriverAardvarkSpiSlave(MetaDriverIo):
     def loop(self):
         """ FROM MetaDriver
         """
-        # if self._loop % 2 == 0:
-        #     self.__push_attribute_value()
-        #     self.__push_attribute_direction()
-        # self._loop += 1
-        # time.sleep(0.5)
         return False
 
     # ###########################################################################

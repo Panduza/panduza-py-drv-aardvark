@@ -49,3 +49,8 @@ To declare a spi master from an aardvark append the following inside you panduza
 ]
 ```
 
+## Tests
+
+Test bench => 2 aardvark connected one to another
+
+

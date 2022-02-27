@@ -41,7 +41,7 @@ class AardvarkBridge:
 
     @staticmethod
     def ConfigureSpiMaster(handle, bitrate_khz, cpol, cpha, bitorder, ss_polarity):
-        """Configure the aardvark
+        """Configure the aardvark as spi master
 
         Args:
             handle (_type_): handle of the aardvark
@@ -55,6 +55,23 @@ class AardvarkBridge:
         aa_spi_configure(handle, cpol, cpha, bitorder)
         aa_spi_slave_disable(handle)
         aa_spi_master_ss_polarity(handle, ss_polarity)
+
+
+    @staticmethod
+    def ConfigureSpiSlave(handle, bitrate_khz, cpol, cpha, bitorder):
+        """Configure the aardvark as spi slave
+
+        Args:
+            handle (_type_): handle of the aardvark
+            bitrate_khz (_type_): _description_
+            cpol (_type_): _description_
+            cpha (_type_): _description_
+            bitorder (_type_): _description_
+            ss_polarity (_type_): _description_
+        """
+        aa_spi_bitrate(handle, bitrate_khz)
+        aa_spi_configure(handle, cpol, cpha, bitorder)
+        aa_spi_slave_enable(handle)
 
 
     
