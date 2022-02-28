@@ -1,4 +1,5 @@
 import time
+import base64
 from loguru import logger
 from pza_platform import MetaDriver
 from .bridge import AardvarkBridge
@@ -93,101 +94,21 @@ class DriverAardvarkSpiMaster(MetaDriver):
         """
         """
 
-        logger.debug("Data transfer requested")
-    
+        # log
+        logger.debug(f"Data transfer requested {payload}")
+        
+        # Parse the params
+        data = self.payload_to_dict(payload)
+        data_to_send = base64.b64decode(data["data_to_send"])
+        size_to_receive = data["size_to_receive"]
+
         #
-        status, data_in = aa_spi_write(self.aa_handle, array('B', [1, 2, 3, 4]), array('B'))
+        status, data_in = aa_spi_write(self.aa_handle, array('B', data_to_send), array('B', bytearray(size_to_receive)))
         if status < 0:
             print(f"fail sending data ({aa_status_string(status)})")
-        else:
-            print("data [1, 2, 3, 4] sent on spi")
+        # else:
+        #     print("data [1, 2, 3, 4] sent on spi")
 
-    #     # Parse request
-    #     req = self.payload_to_dict(payload)
-    #     req_value = req["value"]
-    #     self.value=req_value
-
-    #     try:
-    #         path = "/sys/class/gpio/gpio%s/value" % self.id
-    #         f = open(path, "w")         
-    #         # Update value
-    #         f.write(str(self.value))
-    #         self.push_io_value(self.value)
-    #         # log
-    #         logger.info(f"new value : {self.value}")
-
-    #         f.close()
-    #     except IOError as e:
-    #         # mogger.error("Unable to set value %s to GPIO %s (%s) | %s", str(val), self.id, path, repr(e))
-    #         pass
-
-    # ###########################################################################
-    # ###########################################################################
-
-    # def __set_direction(self, payload):
-    #     """
-    #     """
-    #     # Parse request
-    #     req = self.payload_to_dict(payload)
-    #     req_direction = req["direction"]
-    #     # Update direction
-    #     self.direction=req_direction
-    #     # log
-    #     logger.info(f"new direction : {self.direction}")
-
-    #     try:
-    #         f = open("/sys/class/gpio/gpio%s/direction" % self.id, "w")
-    #         f.write(self.direction)
-    #         self.push_io_direction(self.direction)
-    #         f.close()
-    #     except IOError:
-    #         # mogger.error("Unable to export set value")
-    #         pass
-
-    # ###########################################################################
-    # ###########################################################################
-
-    # def __push_attribute_value(self):
-    #     """ To read and push value attribute of the gpio
-    #     """
-    #     if self.direction == 'out':
-    #         return
-
-    #     try:
-    #         # Read the value from the driver
-    #         f = open("/sys/class/gpio/gpio%s/value" % self.id, "r")
-    #         value = f.read(1)
-    #         f.close()
-    #         value = int(value)
-
-    #         # Push the attribute if it changed
-    #         if self.value != value:
-    #             self.value = value
-    #             logger.debug("gpio '{}' value modified : {}", self.name, self.value)
-    #             self.push_io_value(self.value)
-    #     except IOError as e:
-    #         logger.error("Unable to get value %s", repr(e))
-
-    # ###########################################################################
-    # ###########################################################################
-
-    # def __push_attribute_direction(self):
-    #     """ To read and push direction attribute of the gpio
-    #     """
-    #     try:
-    #         # Read the direction from the driver
-    #         f = open("/sys/class/gpio/gpio%s/direction" % self.id, "r")
-    #         direction = f.read()
-    #         f.close()
-    #         direction = direction.rstrip("\n")
-
-    #         # Push the attribute if it changed
-    #         if self.direction != direction:
-    #             self.direction = direction
-    #             logger.debug("gpio '{}' direction modified : {}", self.name, self.direction)
-    #             self.push_io_direction(self.direction)
-    #     except IOError:
-    #         logger.error("Unable to get direction %s", repr(e))
 
 
 

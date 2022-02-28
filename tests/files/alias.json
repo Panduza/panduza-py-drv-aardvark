@@ -4,7 +4,7 @@
         "port": 1883,
         "interfaces": {
             "spi_m1": "pza/spi_test/aardvark_spi_master/spi_m1",
-            "spi_s1": "pza/spi_test/aardvark_spi_master/spi_s1"
+            "spi_s1": "pza/spi_test/aardvark_spi_slave/spi_s1"
         }
     }
 }

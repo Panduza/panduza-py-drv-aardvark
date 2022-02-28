@@ -1,5 +1,5 @@
 from behave import *
-from panduza import SpiMaster
+from panduza import SpiMaster, SpiSlave
 
 import time
 
@@ -16,12 +16,22 @@ use_step_matcher("parse")
 def given_two_interfaces(context, spi_master, spi_slave):
     print(spi_master, spi_slave)
 
+    # Context Spi
     context.spi = {}
-    context.spi[spi_master] = SpiMaster(alias=spi_master)
-    context.spi[spi_master].enableWatchdog()
-    assert context.spi[spi_master].isAlive() is True
-
-    context.spi[spi_master].disableWatchdog()
+    
+    # 
+    spi_m = SpiMaster(alias=spi_master)
+    spi_m.enableWatchdog()
+    assert spi_m.isAlive() == True
+    spi_m.disableWatchdog()
+    context.spi[spi_master] = spi_m
+    
+    # 
+    spi_s = SpiSlave(alias=spi_slave)
+    spi_s.enableWatchdog()
+    assert spi_s.isAlive() == True
+    spi_s.disableWatchdog()
+    context.spi[spi_slave] = spi_s
 
 ###############################################################################
 ###############################################################################
@@ -40,6 +50,7 @@ def data_is_emitted(context, data, spi_master):
 @then('data "{data}" must be received on "{spi_slave}"')
 def data_is_emitted(context, data, spi_slave):
     time.sleep(1)
-    pass
-
+    
+    # context.spi[spi_slave] 
+    
 
