@@ -51,24 +51,16 @@ class DriverAardvarkSpiSlave(MetaDriverIo):
         # Get Bitorder
         self.bitorder = AA_SPI_BITORDER_MSB
         if "bitorder" in tree["settings"]:
-            if tree["settings"]["bitorder"] is "msb":
+            if tree["settings"]["bitorder"] == "msb":
                 self.bitorder = AA_SPI_BITORDER_MSB
             else:
                 self.bitorder = AA_SPI_BITORDER_LSB
-
-        # Slave Select Polarity
-        self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
-        if "ss_polarity" in tree["settings"]:
-            if tree["settings"]["ss_polarity"] is "active_low":
-                self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
-            else:
-                self.ss_polarity = AA_SPI_SS_ACTIVE_HIGH
 
         #
         logger.debug(f"bitrate: {self.bitrate_khz}khz")
         logger.debug(f"CPOL: {self.cpol}")
         logger.debug(f"CPHA: {self.cpha}")
-        logger.debug(f"bitorder: {tree['settings']['bitorder']}")
+        logger.debug(f"bitorder: {tree['settings']['bitorder']} / {self.bitorder}")
         logger.debug(f"ss-polarity: active_low forced on aardvark slaves")
         
         #
@@ -81,6 +73,19 @@ class DriverAardvarkSpiSlave(MetaDriverIo):
     def loop(self):
         """ FROM MetaDriver
         """
+
+        event = aa_async_poll(self.aa_handle, 0)
+        if event & AA_ASYNC_SPI:
+
+            data_in=array('B', [0,0,0,0,0,0,0,0])
+            status, data_in = aa_spi_slave_read(self.aa_handle, data_in)
+            if status < 0:
+                print(aa_status_string(status))
+            print(data_in)
+            return True
+
+        # logger.debug(f"event {event}")
+
         return False
 
     # ###########################################################################

@@ -52,7 +52,7 @@ class DriverAardvarkSpiMaster(MetaDriver):
         # Get Bitorder
         self.bitorder = AA_SPI_BITORDER_MSB
         if "bitorder" in tree["settings"]:
-            if tree["settings"]["bitorder"] is "msb":
+            if tree["settings"]["bitorder"] == "msb":
                 self.bitorder = AA_SPI_BITORDER_MSB
             else:
                 self.bitorder = AA_SPI_BITORDER_LSB
@@ -60,7 +60,7 @@ class DriverAardvarkSpiMaster(MetaDriver):
         # Slave Select Polarity
         self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
         if "ss_polarity" in tree["settings"]:
-            if tree["settings"]["ss_polarity"] is "active_low":
+            if tree["settings"]["ss_polarity"] == "active_low":
                 self.ss_polarity = AA_SPI_SS_ACTIVE_LOW
             else:
                 self.ss_polarity = AA_SPI_SS_ACTIVE_HIGH
@@ -69,8 +69,8 @@ class DriverAardvarkSpiMaster(MetaDriver):
         logger.debug(f"bitrate: {self.bitrate_khz}khz")
         logger.debug(f"CPOL: {self.cpol}")
         logger.debug(f"CPHA: {self.cpha}")
-        logger.debug(f"bitorder: {tree['settings']['bitorder']}")
-        logger.debug(f"ss-polarity: {tree['settings']['ss_polarity']}")
+        logger.debug(f"bitorder: {tree['settings']['bitorder']} / {self.bitorder}")
+        logger.debug(f"ss-polarity: {tree['settings']['ss_polarity']} / {self.ss_polarity}")
         
         #
         AardvarkBridge.ConfigureSpiMaster(self.aa_handle, self.bitrate_khz, self.cpol, self.cpha, self.bitorder, self.ss_polarity)
@@ -92,6 +92,8 @@ class DriverAardvarkSpiMaster(MetaDriver):
     def __data_transfer(self, payload):
         """
         """
+
+        logger.debug("Data transfer requested")
     
         #
         status, data_in = aa_spi_write(self.aa_handle, array('B', [1, 2, 3, 4]), array('B'))

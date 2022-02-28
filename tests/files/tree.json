@@ -1,0 +1,34 @@
+{
+    "machine": "spi_test",
+    "brokers": {
+        "test_broker": {
+            "addr": "localhost",
+            "port": 1883,
+            "interfaces": [
+                {
+                    "name": "spi_m1",
+                    "driver": "aardvark_spi_master",
+                    "settings": {
+                        "serial_number": 2237170206,
+                        "bitrate_hz": 4000000,
+                        "clock_polarity": 0,
+                        "clock_phase": 0, 
+                        "bitorder": "msb",
+                        "ss_polarity": "active_low"
+                    }
+                },
+                {
+                    "name": "spi_s1",
+                    "driver": "aardvark_spi_slave",
+                    "settings": {
+                        "serial_number": 2238487174,
+                        "bitrate_hz": 4000000,
+                        "clock_polarity": 0,
+                        "clock_phase": 0,
+                        "bitorder": "msb"
+                    }
+                }
+            ]
+        }
+    }
+}
