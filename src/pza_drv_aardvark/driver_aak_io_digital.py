@@ -2,7 +2,7 @@ import time
 from loguru import logger
 from pza_platform import MetaDriverIo
 
-class DriverAardvarkDio(MetaDriverIo):
+class DriverAardvarkIoDigital(MetaDriverIo):
     """
     """
 

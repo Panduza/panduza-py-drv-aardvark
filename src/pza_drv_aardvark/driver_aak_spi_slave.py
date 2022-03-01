@@ -3,10 +3,10 @@ import json
 import base64
 from loguru import logger
 from .bridge import AardvarkBridge
-from pza_platform import MetaDriverIo
+from pza_platform import MetaDriver
 from aardvark_py import *
 
-class DriverAardvarkSpiSlave(MetaDriverIo):
+class DriverAardvarkSpiSlave(MetaDriver):
     """ Driver Aardvark Spi Slave
     """
 
@@ -68,6 +68,9 @@ class DriverAardvarkSpiSlave(MetaDriverIo):
         #
         AardvarkBridge.ConfigureSpiSlave(self.aa_handle, self.bitrate_khz, self.cpol, self.cpha, self.bitorder)
         
+        #
+        self.register_command("responses/push", self.__responses_push)
+        
 
     ###########################################################################
     ###########################################################################
@@ -79,22 +82,40 @@ class DriverAardvarkSpiSlave(MetaDriverIo):
         event = aa_async_poll(self.aa_handle, 0)
         if event & AA_ASYNC_SPI:
 
-            data_in=array('B', [0,0,0,0,0,0,0,0])
-            status, data_in = aa_spi_slave_read(self.aa_handle, data_in)
+            status, data_in = aa_spi_slave_read(self.aa_handle, 1024)
             if status < 0:
-                print(aa_status_string(status))
-            print(data_in)
-            
-            # payload_dict = {
-            #     "value": base64.b64encode(data_in).decode('ascii')
-            # }
-            # self.push_attribute("value", json.dumps(payload_dict), retain=True)
+                logger.warning(f"warning spi {aa_status_string(status)}")
 
+            # print(">>>>", data_in, len(data_in))
+            
+            payload_dict = {
+                "data": base64.b64encode(data_in).decode('ascii')
+            }
+            self.push_attribute("data", json.dumps(payload_dict), retain=True)
 
             return True
 
         # logger.debug(f"event {event}")
 
         return False
+
+    ###########################################################################
+    ###########################################################################
+
+    def __responses_push(self, payload):
+        """
+        """
+        # Parse request
+        req = self.payload_to_dict(payload)
+        data = base64.b64decode(req["data"])
+
+        
+        aa_spi_slave_set_response(self.aa_handle, array('B', data))
+
+        # # Update direction
+        # self.direction=req_direction
+        # self.push_io_direction(self.direction)
+        # # log
+        # logger.info(f"new direction : {self.direction}")
 
 

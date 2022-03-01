@@ -103,12 +103,13 @@ class DriverAardvarkSpiMaster(MetaDriver):
         size_to_receive = data["size_to_receive"]
 
         #
-        status, data_in = aa_spi_write(self.aa_handle, array('B', data_to_send), array('B', bytearray(size_to_receive)))
+        data_in = array('B', bytearray(size_to_receive))
+        status, data_in = aa_spi_write(self.aa_handle, array('B', data_to_send), data_in)
         if status < 0:
             print(f"fail sending data ({aa_status_string(status)})")
         # else:
         #     print("data [1, 2, 3, 4] sent on spi")
 
-
+        print("MASTER", data_in, "\n")
 
 
