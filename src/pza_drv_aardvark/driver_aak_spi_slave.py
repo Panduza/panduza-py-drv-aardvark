@@ -82,7 +82,7 @@ class DriverAardvarkSpiSlave(MetaDriver):
         event = aa_async_poll(self.aa_handle, 0)
         if event & AA_ASYNC_SPI:
 
-            status, data_in = aa_spi_slave_read(self.aa_handle, 1024)
+            status, data_in = aa_spi_slave_read(self.aa_handle, 99999)
             if status < 0:
                 logger.warning(f"warning spi {aa_status_string(status)}")
 
@@ -91,7 +91,11 @@ class DriverAardvarkSpiSlave(MetaDriver):
             payload_dict = {
                 "data": base64.b64encode(data_in).decode('ascii')
             }
-            self.push_attribute("data", json.dumps(payload_dict), retain=True)
+            self.push_attribute("data", json.dumps(payload_dict))
+
+ 
+            aa_spi_slave_set_response(self.aa_handle, array('B', bytearray()))
+
 
             return True
 
@@ -109,13 +113,7 @@ class DriverAardvarkSpiSlave(MetaDriver):
         req = self.payload_to_dict(payload)
         data = base64.b64decode(req["data"])
 
-        
         aa_spi_slave_set_response(self.aa_handle, array('B', data))
 
-        # # Update direction
-        # self.direction=req_direction
-        # self.push_io_direction(self.direction)
-        # # log
-        # logger.info(f"new direction : {self.direction}")
 
 
