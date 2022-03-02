@@ -86,8 +86,10 @@ class DriverAardvarkSpiSlave(MetaDriver):
             if status < 0:
                 logger.warning(f"warning spi {aa_status_string(status)}")
 
-            # print(">>>>", data_in, len(data_in))
+            # Debug log
+            logger.debug(f"data received: {data_in}")
             
+            # Publish the data
             payload_dict = {
                 "data": base64.b64encode(data_in).decode('ascii')
             }

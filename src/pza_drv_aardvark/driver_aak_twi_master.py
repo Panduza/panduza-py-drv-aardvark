@@ -36,6 +36,18 @@ class DriverAardvarkTwiMaster(MetaDriver):
         """
         # Open the device
         self.aa_handle = AardvarkBridge.GetHandle( tree["settings"]["serial_number"] )
+
+        # Get bitrate
+        self.bitrate_khz = 1000
+        if "bitrate_hz" in tree["settings"]:
+            self.bitrate_khz = int(tree["settings"]["bitrate_hz"] / 1000)
+
+        #
+        logger.debug(f"bitrate: {self.bitrate_khz}khz")
+
+        #
+        AardvarkBridge.ConfigureTwiMaster(self.aa_handle, self.bitrate_khz)
+        
         
     ###########################################################################
     ###########################################################################
@@ -44,4 +56,14 @@ class DriverAardvarkTwiMaster(MetaDriver):
         """ FROM MetaDriver
         """
         return False
+
+
+
+
+# #
+# status = aa_i2c_write(aardvark_handle, slave_addr, flags, data_out)
+# if status < 0:
+#     print(f"fail sending data ({aa_status_string(status)})")
+# else:
+#     print("data [1, 2, 3, 4] sent on i2c")
 

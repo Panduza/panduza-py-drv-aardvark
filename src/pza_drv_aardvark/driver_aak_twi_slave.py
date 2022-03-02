@@ -38,7 +38,17 @@ class DriverAardvarkTwiSlave(MetaDriver):
         """
         # Open the device
         self.aa_handle = AardvarkBridge.GetHandle( tree["settings"]["serial_number"] )
-        
+
+        # Get bitrate
+        self.bitrate_khz = 1000
+        if "bitrate_hz" in tree["settings"]:
+            self.bitrate_khz = int(tree["settings"]["bitrate_hz"] / 1000)
+
+        #
+        logger.debug(f"bitrate: {self.bitrate_khz}khz")
+
+        #
+        AardvarkBridge.ConfigureTwiSlave(self.aa_handle, self.bitrate_khz, 55)
 
     ###########################################################################
     ###########################################################################
@@ -47,4 +57,5 @@ class DriverAardvarkTwiSlave(MetaDriver):
         """ FROM MetaDriver
         """
         return False
+
 

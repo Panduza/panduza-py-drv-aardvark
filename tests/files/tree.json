@@ -1,5 +1,5 @@
 {
-    "machine": "spi_test",
+    "machine": "aardvark_test",
     "brokers": {
         "test_broker": {
             "addr": "localhost",
@@ -26,6 +26,22 @@
                         "clock_polarity": 0,
                         "clock_phase": 0,
                         "bitorder": "msb"
+                    }
+                },
+                {
+                    "name": "twi_m1",
+                    "driver": "aardvark_twi_master",
+                    "settings": {
+                        "serial_number": 2237170206,
+                        "bitrate_hz": 10000
+                    }
+                },
+                {
+                    "name": "twi_s1",
+                    "driver": "aardvark_twi_slave",
+                    "settings": {
+                        "serial_number": 2238487174,
+                        "bitrate_hz": 10000
                     }
                 }
             ]

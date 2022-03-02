@@ -1,4 +1,5 @@
 # Imports
+import threading
 from aardvark_py import *
 from loguru import logger
 
@@ -7,10 +8,26 @@ class AardvarkBridge:
     """Centralized aardvark connection manager
     """
 
+    # {
+    #   serial: {  handle:  ,   }
+    # }
+    CACHE = {}
+    
+    #
+    MUTEX = threading.Lock()
+
     @staticmethod
     def GetHandle(serial_number):
         """Find the aardvark device with the given serial number
         """
+        
+        AardvarkBridge.MUTEX.acquire()
+        
+        #
+        sn_str = str(serial_number)
+        if sn_str in AardvarkBridge.CACHE:
+            return AardvarkBridge.CACHE[sn_str]["handle"]
+
         # Start by running an extended discovery
         MAX_NUMBER_OF_DEVICE_TO_DETECT=32
         aa_devices_extended = aa_find_devices_ext(MAX_NUMBER_OF_DEVICE_TO_DETECT, MAX_NUMBER_OF_DEVICE_TO_DETECT)
@@ -36,6 +53,11 @@ class AardvarkBridge:
         if aardvark_handle < 0:
             raise Exception(f"Error opening aardvark '{aa_status_string(aardvark_handle)}'")
 
+        #
+        AardvarkBridge.CACHE[sn_str] = { "handle": aardvark_handle }
+
+        AardvarkBridge.MUTEX.release()
+        
         # Return the handle
         return aardvark_handle
 
@@ -74,4 +96,15 @@ class AardvarkBridge:
         aa_spi_slave_enable(handle)
 
 
-    
+    @staticmethod
+    def ConfigureTwiMaster(handle, bitrate_khz):
+        #
+        aa_i2c_bitrate(handle, bitrate_khz)
+
+
+    @staticmethod
+    def ConfigureTwiSlave(handle, bitrate_khz, slave_addr):
+        aa_i2c_bitrate(handle, bitrate_khz)
+        aa_i2c_slave_enable(handle, slave_addr, 1024, 1024)
+
+
