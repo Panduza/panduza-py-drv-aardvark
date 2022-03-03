@@ -41,7 +41,8 @@
                     "driver": "aardvark_twi_slave",
                     "settings": {
                         "serial_number": 2238487174,
-                        "bitrate_hz": 10000
+                        "bitrate_hz": 10000,
+                        "address": 42
                     }
                 }
             ]

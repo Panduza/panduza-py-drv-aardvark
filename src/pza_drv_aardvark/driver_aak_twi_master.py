@@ -50,6 +50,7 @@ class DriverAardvarkTwiMaster(MetaDriver):
 
 
         # Register commands
+        self.register_command("data/read", self.__data_read)
         self.register_command("data/write", self.__data_write)
 
         
@@ -67,14 +68,36 @@ class DriverAardvarkTwiMaster(MetaDriver):
     def __data_write(self, payload):
         """
         """
-
         # Debug log
         logger.debug(f"CMD data/write ({payload})")
 
-# #
-# status = aa_i2c_write(aardvark_handle, slave_addr, flags, data_out)
-# if status < 0:
-#     print(f"fail sending data ({aa_status_string(status)})")
-# else:
-#     print("data [1, 2, 3, 4] sent on i2c")
+        # Parse the params
+        req = self.payload_to_dict(payload)
+        data = base64.b64decode(req["data"])
+        addr = req["addr"]
+        
+        flags = AA_I2C_NO_FLAGS
+        if "addr_10b" in req and req["addr_10b"]:
+            flags = flags | AA_I2C_10_BIT_ADDR
+        if "no_stop" in req and req["no_stop"]:
+            flags = flags | AA_I2C_NO_STOP
+
+        #
+        status = aa_i2c_write(self.aa_handle, addr, flags, array('B', data) )
+        if status < 0:
+            print(f"fail sending data ({aa_status_string(status)})")
+            return
+    
+        logger.debug(f"CMD data/read ({payload})")
+
+
+    ###########################################################################
+    ###########################################################################
+
+    def __data_read(self, payload):
+        """
+        """
+        # Debug log
+        logger.debug(f"CMD data/read ({payload})")
+
 
