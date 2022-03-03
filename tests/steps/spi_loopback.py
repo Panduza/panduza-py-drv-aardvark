@@ -1,5 +1,6 @@
 from behave import *
 from panduza import SpiMaster, SpiSlave
+from xdocz_helpers import AttachTextLog
 
 import time
 
@@ -14,25 +15,30 @@ use_step_matcher("parse")
 
 @given('two spi interfaces "{spi_master}" and "{spi_slave}"')
 def given_two_interfaces(context, spi_master, spi_slave):
-    """
+    """ Check that the two spi interfaces are alive on the broker
     """
     # Context Spi
     context.spi = {}
     
-    # 
+    # Create interfaces
     spi_m = SpiMaster(alias=spi_master)
+    spi_s = SpiSlave(alias=spi_slave)
+
+    # Log
+    AttachTextLog(context, f"Spi Slave  Topic ({spi_s.baseTopic})")
+    AttachTextLog(context, f"Spi Master Topic ({spi_m.baseTopic})")
+
+    # Monitor master heartbeat
     spi_m.enableHeartBeatMonitoring()
     assert spi_m.isAlive() == True
     spi_m.disableHeartBeatMonitoring()
     context.spi[spi_master] = spi_m
     
-    # 
-    spi_s = SpiSlave(alias=spi_slave)
+    # Monitor slave heartbeat
     spi_s.enableHeartBeatMonitoring()
     assert spi_s.isAlive() == True
     spi_s.disableHeartBeatMonitoring()
     context.spi[spi_slave] = spi_s
-    
 
 ###############################################################################
 ###############################################################################

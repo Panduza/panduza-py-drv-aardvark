@@ -58,19 +58,18 @@ class DriverAardvarkSpiSlave(MetaDriver):
             else:
                 self.bitorder = AA_SPI_BITORDER_LSB
 
-        #
+        # Debug logs
         logger.debug(f"bitrate: {self.bitrate_khz}khz")
         logger.debug(f"CPOL: {self.cpol}")
         logger.debug(f"CPHA: {self.cpha}")
         logger.debug(f"bitorder: {tree['settings']['bitorder']} / {self.bitorder}")
         logger.debug(f"ss-polarity: active_low forced on aardvark slaves")
         
-        #
+        # Configure the spi slave
         AardvarkBridge.ConfigureSpiSlave(self.aa_handle, self.bitrate_khz, self.cpol, self.cpha, self.bitorder)
         
-        #
+        # Register commands
         self.register_command("responses/push", self.__responses_push)
-        
 
     ###########################################################################
     ###########################################################################
@@ -78,17 +77,18 @@ class DriverAardvarkSpiSlave(MetaDriver):
     def loop(self):
         """ FROM MetaDriver
         """
-
+        # Poll on events and trigger if spi event
         event = aa_async_poll(self.aa_handle, 0)
         if event & AA_ASYNC_SPI:
-
+            
+            # Read slave data
             status, data_in = aa_spi_slave_read(self.aa_handle, 99999)
             if status < 0:
-                logger.warning(f"warning spi {aa_status_string(status)}")
+                logger.warning(f"Warning spi slvae read ({aa_status_string(status)})")
 
             # Debug log
             logger.debug(f"data received: {data_in}")
-            
+
             # Publish the data
             payload_dict = {
                 "data": base64.b64encode(data_in).decode('ascii')
@@ -100,8 +100,6 @@ class DriverAardvarkSpiSlave(MetaDriver):
 
 
             return True
-
-        # logger.debug(f"event {event}")
 
         return False
 

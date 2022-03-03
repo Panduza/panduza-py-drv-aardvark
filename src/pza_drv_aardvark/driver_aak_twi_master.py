@@ -47,7 +47,11 @@ class DriverAardvarkTwiMaster(MetaDriver):
 
         #
         AardvarkBridge.ConfigureTwiMaster(self.aa_handle, self.bitrate_khz)
-        
+
+
+        # Register commands
+        self.register_command("data/write", self.__data_write)
+
         
     ###########################################################################
     ###########################################################################
@@ -57,8 +61,15 @@ class DriverAardvarkTwiMaster(MetaDriver):
         """
         return False
 
+    ###########################################################################
+    ###########################################################################
 
+    def __data_write(self, payload):
+        """
+        """
 
+        # Debug log
+        logger.debug(f"CMD data/write ({payload})")
 
 # #
 # status = aa_i2c_write(aardvark_handle, slave_addr, flags, data_out)

@@ -20,8 +20,9 @@ class AardvarkBridge:
     def GetHandle(serial_number):
         """Find the aardvark device with the given serial number
         """
-        
+        # Lock the mutex
         AardvarkBridge.MUTEX.acquire()
+        logger.debug(f"Try to get the aardvark '{serial_number}' handle")
         
         #
         sn_str = str(serial_number)
@@ -49,16 +50,16 @@ class AardvarkBridge:
 
         # Open the device port
         aardvark_handle = aa_open(port_aardvark)
-        logger.debug(f"open aardvark {serial_number} on port {port_aardvark}")
+        logger.debug(f"Open aardvark {serial_number} on port {port_aardvark}")
         if aardvark_handle < 0:
             raise Exception(f"Error opening aardvark '{aa_status_string(aardvark_handle)}'")
 
         #
         AardvarkBridge.CACHE[sn_str] = { "handle": aardvark_handle }
 
-        AardvarkBridge.MUTEX.release()
-        
         # Return the handle
+        AardvarkBridge.MUTEX.release()
+        logger.debug(f"Aardvark handle found ({aardvark_handle})")
         return aardvark_handle
 
     @staticmethod

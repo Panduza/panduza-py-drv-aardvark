@@ -94,7 +94,6 @@ class DriverAardvarkSpiMaster(MetaDriver):
     def __data_transfer(self, payload):
         """
         """
-
         # log
         logger.debug(f"Data transfer requested {payload}")
         
